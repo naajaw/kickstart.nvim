@@ -1,2 +1,1 @@
-require 'naajaw'
-print 'helloooo'
+require("config.lazy")
