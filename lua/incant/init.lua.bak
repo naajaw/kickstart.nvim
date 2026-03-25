@@ -73,10 +73,6 @@ local p_light = {
   fg3       = "#2E220F", -- Very dim: fold markers, end-of-buffer tildes
   fg4       = "#3D2D14",
   fg5       = "#4D3819",
-  fg6       = "#5c431f",
-  fg7       = "#6b4f24",
-  fg8       = "#7a5a29",
-  fg9       = "#8a652e",
 
   -- Accent colors — used for syntax and UI highlights
   red       = "#341d1d", -- Errors, deletions, keywords like `return`/`break`
@@ -134,25 +130,19 @@ local s = {}
 -- The root style. Every other style derives from this.
 -- Primary foreground, transparent background, no decorations.
 s.plain = {
-  fg            = p.fg1,
+  fg            = p.fg0,
   bg            = p.none,
   sp            = p.none,       -- special color: tints undercurl/underline strokes
   bold          = false,
-  blend         = 100,
   italic        = false,
   reverse       = false,
-  -- overline      = false,
-  undercurl     = false,        -- wavy stroke (diagnostics, spell check)
+  nocombine     = false,
   underline     = false,
-  strikethrough = false,
+  undercurl     = false,        -- wavy stroke (diagnostics, spell check)
   underdouble   = false,        -- double underline
   underdotted   = false,        -- dotted underline
   underdashed   = false,        -- dashed underline
-  nocombine     = false,
-  standout      = false,
-  altfont       = false,
-  -- blink         = false,
-  -- dim           = false,
+  strikethrough = false,
 }
 
 -- ── Tonal variants: foreground brightness only ────────────────────────────────
@@ -161,25 +151,25 @@ s.muted = ext(s.plain, { fg = p.fg3 })  -- near-invisible (ignored text, placeho
 
 -- ── keyword ───────────────────────────────────────────────────────────────────
 -- Control flow, storage modifiers, imports: if, for, const, import, static…
-s.keyword = ext(s.plain, { fg = p.fg1, bold = true })
+s.keyword = ext(s.plain, { fg = p.blue })
 
 -- ── intrinsic ─────────────────────────────────────────────────────────────────
 -- Language-defined built-ins, operators, and special punctuation.
 -- Things the language ships: built-in functions/types/modules, keyword-operators
 -- (and, or, not), preprocessor directives, regex patterns.
-s.intrinsic       = ext(s.plain,     { fg = p.fg0, bold = true })
+s.intrinsic       = ext(s.plain,     { fg = p.teal })
 s.intrinsicItalic = ext(s.intrinsic, { italic = true })  -- built-in attrs, link URLs
 
 -- ── literal ───────────────────────────────────────────────────────────────────
 -- Numeric/boolean values, named constants, and function parameters.
 -- Parameters share this color intentionally: they are value-like bindings
 -- at the call site, conceptually adjacent to constants.
-s.literal     = ext(s.plain,   { fg = p.orange, bold = true })
-s.literalBold = ext(s.literal, { bold = true, underline = true })   -- @constant.builtin: nil, null, true, false
+s.literal     = ext(s.plain,   { fg = p.orange })
+s.literalBold = ext(s.literal, { bold = true })   -- @constant.builtin: nil, null, true, false
 
 -- ── str ───────────────────────────────────────────────────────────────────────
 -- String and character literals.
-s.str    = ext(s.plain, { fg = p.yellow, bold = true })
+s.str    = ext(s.plain, { fg = p.yellow })
 s.strDoc = ext(s.str,   { italic = true })  -- docstrings: readable, slightly softer
 
 -- ── func ──────────────────────────────────────────────────────────────────────
@@ -198,23 +188,23 @@ s.typeAttr = ext(s.type,  { italic = true })  -- decorators: @dataclass, #[deriv
 -- Keywords and tokens that signal control disruption or failure:
 -- return, break, throw, raise, try/catch, syntax errors, debug statements.
 -- Also HTML/JSX tag names (red is a widely-adopted convention there).
-s.ctrl         = ext(s.plain,  { fg = p.red })
-s.danger       = ext(s.plain,  { fg = p.red, bold = true }) -- hard syntax errors, FIXME badges
-s.dangerItalic = ext(s.ctrl,   { italic = true })           -- @variable.builtin: self, this, super
+s.danger       = ext(s.plain,  { fg = p.red })
+s.dangerBold   = ext(s.danger, { bold = true })    -- hard syntax errors, FIXME badges
+s.dangerItalic = ext(s.danger, { italic = true })  -- @variable.builtin: self, this, super
 
 -- ── punctuation ───────────────────────────────────────────────────────────────
 -- Delimiters, brackets, tag syntax: , ; . : ( ) [ ] { } < > /
 -- Slightly dimmed so they don't compete visually with the tokens they separate.
-s.punctuation = ext(s.plain, { fg = p.fg0 })
+s.punctuation = ext(s.plain, { fg = p.fg1 })
 
 -- ── comment ───────────────────────────────────────────────────────────────────
 -- Inline and block comments. Italic conventionally signals "not executable code".
-s.comment    = ext(s.plain,   { fg = p.fg9, italic = true })
-s.docComment = ext(s.comment, { fg = p.fg7 })  -- brighter: doc comments are API surface
+s.comment    = ext(s.plain,   { fg = p.fg2, italic = true })
+s.docComment = ext(s.comment, { fg = p.fg1 })  -- brighter: doc comments are API surface
 
 -- ── commentWarn ───────────────────────────────────────────────────────────────
 -- WARNING/HACK/WARN annotations inside comments. Colored text, no background.
-s.commentWarn = ext(s.plain, { fg = p.none, bg = p.yellow, bold = true })
+s.commentWarn = ext(s.plain, { fg = p.yellow, bold = true })
 
 -- ── badge ─────────────────────────────────────────────────────────────────────
 -- Inverted-color inline blocks for high-visibility comment annotations.
@@ -435,7 +425,7 @@ function M.setup()
   hi("Label",         s.keyword)         -- case, default, goto labels
   hi("Operator",      s.intrinsic)       -- +, -, *, /, &&, ||
   hi("Keyword",       s.keyword)         -- Other keywords (import, return, etc.)
-  hi("Exception",     s.ctrl)          -- try, catch, throw, raise
+  hi("Exception",     s.danger)          -- try, catch, throw, raise
 
   hi("PreProc",       s.intrinsic)       -- Generic preprocessor
   hi("Include",       s.keyword)         -- #include, import, require
@@ -453,11 +443,11 @@ function M.setup()
   hi("Tag",           s.keyword)         -- HTML/XML tag names
   hi("Delimiter",     s.punctuation)     -- Punctuation: , ; . ( ) [ ] { }
   hi("SpecialComment",s.intrinsicItalic) -- Special annotations inside comments
-  hi("Debug",         s.ctrl)          -- Debug statements
+  hi("Debug",         s.danger)          -- Debug statements
 
   hi("Underlined",    s.markupUnderline) -- Text that should be underlined
   hi("Ignore",        s.muted)           -- Hidden / irrelevant text
-  hi("Error",         s.danger)      -- Syntax errors
+  hi("Error",         s.dangerBold)      -- Syntax errors
   hi("Todo",          s.badgeTodo)       -- TODO, FIXME, HACK in comments
 
   -- ───────────────────────────────────────────────────────────────────────────
@@ -524,9 +514,9 @@ function M.setup()
   hi("@keyword.import",              s.keyword)   -- import, require, use, from
   hi("@keyword.storage",             s.keyword)   -- static, const, let, var, mut
   hi("@keyword.repeat",              s.keyword)   -- for, while, loop, do
-  hi("@keyword.return",              s.ctrl)    -- return (signals exit, grouped with disruption)
-  hi("@keyword.debug",               s.ctrl)    -- debugger, breakpoint
-  hi("@keyword.exception",           s.ctrl)    -- try, catch, throw, raise, rescue
+  hi("@keyword.return",              s.danger)    -- return (signals exit, grouped with disruption)
+  hi("@keyword.debug",               s.danger)    -- debugger, breakpoint
+  hi("@keyword.exception",           s.danger)    -- try, catch, throw, raise, rescue
   hi("@keyword.conditional",         s.keyword)   -- if, else, elif, unless, switch
   hi("@keyword.conditional.ternary", s.intrinsic) -- ? and : in ternary expressions
   hi("@keyword.directive",           s.intrinsic) -- #pragma, %directive
@@ -546,10 +536,10 @@ function M.setup()
   -- ── Comments ──────────────────────────────────────────────────────────────
   hi("@comment",               s.comment)    -- Regular comments
   hi("@comment.documentation", s.docComment) -- /// or /** doc comments
-  hi("@comment.error",         s.danger) -- FIXME, BUG, ERROR in comments
+  hi("@comment.error",         s.dangerBold) -- FIXME, BUG, ERROR in comments
   hi("@comment.warning",       s.commentWarn) -- WARNING, WARN, HACK in comments
-  hi("@comment.todo",          s.commentWarn)  -- TODO, WIP
-  hi("@comment.note",          s.commentWarn)  -- NOTE, INFO, HINT
+  hi("@comment.todo",          s.badgeTodo)  -- TODO, WIP
+  hi("@comment.note",          s.badgeNote)  -- NOTE, INFO, HINT
 
   -- ── Markup (Markdown, AsciiDoc, etc.) ─────────────────────────────────────
   hi("@markup.heading",           s.heading1)        -- # Heading (generic fallback)
@@ -572,7 +562,7 @@ function M.setup()
   hi("@markup.underline",         s.markupUnderline) -- __underlined__ (AsciiDoc etc.)
 
   -- ── HTML / XML / JSX Tags ─────────────────────────────────────────────────
-  hi("@tag",           s.ctrl)      -- <div>, <Component> (red: conventional for tag names)
+  hi("@tag",           s.danger)      -- <div>, <Component> (red: conventional for tag names)
   hi("@tag.attribute", s.str)         -- class="foo", onClick={...} (attr values are string-like)
   hi("@tag.delimiter", s.punctuation) -- < > / in tag syntax
 
