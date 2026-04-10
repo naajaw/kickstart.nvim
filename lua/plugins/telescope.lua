@@ -3,21 +3,35 @@ return {
     dependencies = {
         {
             "nvim-telescope/telescope-live-grep-args.nvim",
-            -- This will not install any breaking changes.
-            -- For major updates, this must be adjusted manually.
             version = "^1.0.0",
         },
     },
-    config = function()
+    keys = {
+        {
+            "<leader>/",
+            function()
+                require("telescope").extensions.live_grep_args.live_grep_args()
+            end,
+            desc = "Grep (Root Dir)",
+        },
+    },
+    opts = function(_, opts)
+        local lga_actions = require("telescope-live-grep-args.actions")
+        opts.extensions = opts.extensions or {}
+        opts.extensions.live_grep_args = {
+            auto_quoting = true,
+            mappings = {
+                i = {
+                    ["<C-k>"] = lga_actions.quote_prompt(),
+                    ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+                    ["<C-f>"] = lga_actions.quote_prompt({ postfix = " -t " }),
+                },
+            },
+        }
+    end,
+    config = function(_, opts)
         local telescope = require("telescope")
-
-        -- first setup telescope
-        telescope.setup({
-            -- your config
-        })
-
-        -- then load the extension
+        telescope.setup(opts)
         telescope.load_extension("live_grep_args")
     end,
 }
-
