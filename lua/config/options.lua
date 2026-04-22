@@ -24,3 +24,6 @@ vim.g.lazyvim_prettier_needs_config = false
 
 -- Set to false to disable auto format
 vim.g.lazyvim_eslint_auto_format = true
+
+vim.opt.title = true
+vim.opt.titlestring = [[%{luaeval("require('config.titlestring')()")}]]
